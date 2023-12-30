@@ -5,6 +5,7 @@ sys.path.append(os.pardir)  # 親ディレクトリのファイルをインポ�
 from common.functions import *
 from common.gradient import numerical_gradient
 import numpy as np
+from PIL import Image
 
 # 予測ベクトルyの各値が0から1を取れるように改変
 
@@ -25,7 +26,7 @@ class TwoLayerNet2:
         a1 = np.dot(x, W1) + b1
         z1 = relu(a1)
         a2 = np.dot(z1, W2) + b2
-        y = relu(a2)
+        y = sign(a2)
         
         return y
         
@@ -37,10 +38,8 @@ class TwoLayerNet2:
     
     def accuracy(self, x, t):
         y = self.predict(x)
-        y = np.argmax(y, axis=1)
-        t = np.argmax(t, axis=1)
         
-        accuracy = np.sum(y == t) / float(x.shape[0])
+        accuracy = np.sum(np.where(y == t, 1, 0)) / float(x.shape[0])
         return accuracy
         
     # x:入力データ, t:教師データ
@@ -66,7 +65,7 @@ class TwoLayerNet2:
         a1 = np.dot(x, W1) + b1
         z1 = relu(a1)
         a2 = np.dot(z1, W2) + b2
-        y = relu(a2)
+        y = sigmoid(a2 - 0.5)
         
         # backward
         dy = (y - t) / batch_num
@@ -79,3 +78,18 @@ class TwoLayerNet2:
         grads['b1'] = np.sum(da1, axis=0)
 
         return grads
+    def digitshow(self, n, m = 0):
+        x = np.zeros(10, dtype=int)
+        x[n] = 1
+        
+        W1, W2 = self.params['W1'], self.params['W2']
+        b1, b2 = self.params['b1'], self.params['b2']
+    
+        a1 = np.dot(x, W1) + b1
+        z1 = relu(a1)
+        a2 = np.dot(z1, W2) + b2
+        y = sigmoid(a2) * 256
+
+        img = y.reshape(28, 28)
+        pil_img = Image.fromarray(np.uint8(img))
+        pil_img.show() 

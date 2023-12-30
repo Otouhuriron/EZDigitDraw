@@ -1,6 +1,8 @@
 # coding: utf-8
 import numpy as np
 
+def sign(x):
+    return np.where(x > 0.5, 1, 0)
 
 def identity_function(x):
     return x
